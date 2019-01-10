@@ -3,10 +3,10 @@ package org.hobbit.core.service.docker.impl.core;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.hobbit.core.service.docker.api.DockerService;
 import org.hobbit.core.service.docker.api.DockerServiceFactory;
+import org.hobbit.core.service.docker.api.DockerServiceSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,12 +26,14 @@ public class DockerServiceFactoryChain
 	
 	
 	@Override
-	public DockerService create(String imageName, Map<String, String> env) {
+	public DockerService create(DockerServiceSpec serviceSpec) {
+		
+		String imageName = serviceSpec.getImageName();
 		
 		DockerService result = null;
 		for(DockerServiceFactory<?> factory : factories) {
 			try {
-				result = factory.create(imageName, env);
+				result = factory.create(serviceSpec);
 				break;
 			} catch(UnsupportedOperationException e) {
 				logger.info("Service factory did not support " + imageName + ", trying next one");

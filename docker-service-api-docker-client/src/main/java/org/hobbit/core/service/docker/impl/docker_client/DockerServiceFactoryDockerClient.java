@@ -1,6 +1,7 @@
 package org.hobbit.core.service.docker.impl.docker_client;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,7 +12,11 @@ import java.util.UUID;
 import java.util.function.Supplier;
 
 import org.hobbit.core.service.docker.api.DockerService;
+import org.hobbit.core.service.docker.api.DockerServiceBuilder;
 import org.hobbit.core.service.docker.api.DockerServiceFactory;
+import org.hobbit.core.service.docker.api.DockerServiceSpec;
+import org.hobbit.core.service.docker.api.DockerServiceSystem;
+import org.hobbit.core.service.docker.impl.core.DockerServiceBuilderImpl;
 import org.hobbit.core.service.docker.util.EnvironmentUtils;
 
 import com.spotify.docker.client.DefaultDockerClient;
@@ -23,7 +28,8 @@ import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.PortBinding;
 
 public class DockerServiceFactoryDockerClient
-	implements DockerServiceFactory<DockerService>
+	//implements DockerServiceFactory<DockerService>
+	implements DockerServiceSystem<DockerService>
 {
     protected DockerClient dockerClient;
     protected Supplier<ContainerConfig.Builder> containerConfigBuilderSupplier;
@@ -92,14 +98,36 @@ public class DockerServiceFactoryDockerClient
     }
 
 	@Override
-	public DockerService create(String imageName, Map<String, String> localEnv) {
-		Builder builder = containerConfigBuilderSupplier.get();
-		Map<String, String> env = new LinkedHashMap<>();
-		env.putAll(EnvironmentUtils.listToMap(builder.build().env()));
-		env.putAll(localEnv);
+	public DockerService create(DockerServiceSpec serviceSpec) {
 		
-		String containerName = null;
-		if(!hostMode) {
+		String containerName = serviceSpec.getContainerName();
+		String imageName = serviceSpec.getImageName();
+		Map<String, String> localEnv = serviceSpec.getLocalEnvironment();
+		
+		Builder builder = null;
+		if(serviceSpec instanceof DockerServiceSpecDockerClient) {
+			DockerServiceSpecDockerClient tmp = (DockerServiceSpecDockerClient)serviceSpec;
+			
+			//DockerServiceSpecContainerConfig.finalizeContainerConfig(tmp);
+			
+			builder = tmp.getContainerConfigBuilder();			
+		}
+		
+		if(builder == null) {		
+			builder = containerConfigBuilderSupplier.get();
+		}
+
+		
+		List<String> rawEnv = builder.build().env();
+		if(rawEnv == null) {
+		    rawEnv = Collections.emptyList();
+		}
+		
+		Map<String, String> env = EnvironmentUtils.listToMap(rawEnv);
+		env.putAll(localEnv);		
+		
+		//String containerName = null;
+		if(containerName == null && !hostMode) {
 			String hostname = deriveHostname(imageName);
 			builder.hostname(hostname);
 			containerName = hostname;
@@ -119,7 +147,6 @@ public class DockerServiceFactoryDockerClient
 	public static DockerServiceFactory<?> create(
 			boolean hostMode, Map<String, String> env, Set<String> networks) throws DockerCertificateException {
         DockerClient dockerClient = DefaultDockerClient.fromEnv().build();
-
 
         // Bind container port 443 to an automatically allocated available host
         String[] ports = { }; //{ "80", "22" };
@@ -152,9 +179,40 @@ public class DockerServiceFactoryDockerClient
         return result;
 	}
 
-
 	@Override
 	public void close() throws Exception {
 		dockerClient.close();
-	}		
+	}
+
+
+	@Override
+	public DockerServiceBuilder<DockerService> newServiceBuilder() {
+		Builder containerConfigBuilder = containerConfigBuilderSupplier.get();
+		
+		DockerServiceSpec serviceSpec = DockerServiceSpecDockerClient.wrap(containerConfigBuilder);
+		
+//	//      // Merge the local environment into that of the containerConfig
+//	      List<String> rawEnv = containerConfigBuilder.build().env();
+//	      if(rawEnv == null) {
+//	      	rawEnv = Collections.emptyList();
+//	      }
+//	
+//	      Map<String, String> env = EnvironmentUtils.listToMap(rawEnv);
+//	      env.putAll(localEnv);
+//	      
+//	      List<String> envList = EnvironmentUtils.mapToList(env);
+//	      containerConfigBuilder.env(envList);
+//	      ContainerConfig containerConfig = containerConfigBuilder.build();
+//	
+//	      DockerServiceDockerClient result = new DockerServiceDockerClient(dockerClient, containerConfig, null, hostMode, networks);
+//	      return result;
+//	
+		
+		return new DockerServiceBuilderImpl<>(this, serviceSpec);
+	}
+
+//	@Override
+//	public DockerServiceSpec newSpec() {
+//		return new DockerServiceSpecImpl();
+//	}		
 }

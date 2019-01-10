@@ -26,7 +26,7 @@ public class MainDockerServiceExampleVirtuoso {
 
 		try (DockerServiceFactory<?> dsf = DockerServiceFactoryDockerClient.create(true, Collections.emptyMap(), Collections.emptySet())) {
 
-			DockerService ds = dsf.create("tenforce/virtuoso", ImmutableMap.<String, String>builder()
+			DockerService ds = dsf.create(null, "tenforce/virtuoso", ImmutableMap.<String, String>builder()
 					.put("SPARQL_UPDATE", "true")
 					.put("DEFAULT_GRAPH", "http://www.example.org/")
 					.build());

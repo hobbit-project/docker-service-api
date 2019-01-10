@@ -26,6 +26,10 @@ import org.hobbit.core.service.docker.api.DockerServiceBuilder;
 public class DockerServiceBuilderSimpleDelegation
     implements DockerServiceBuilder<DockerService>//, Cloneable
 {
+	// FIXME The design we actually want is to use an Resource to hold the state,
+	// and then just delegate the resource to a function
+	// The consumer can then create any view of the resource it wants
+	protected String containerName;
     protected String imageName;
     protected Map<String, String> localEnvironment;
 
@@ -61,6 +65,17 @@ public class DockerServiceBuilderSimpleDelegation
 //        result.setLocalEnvironment(localEnvironment);
 //        return result;
 //    }
+
+	@Override
+	public String getContainerName() {
+		return containerName;
+	}
+
+	@Override
+	public DockerServiceBuilder<DockerService> setContainerName(String containerName) {
+		this.containerName = containerName;
+		return this;
+	}
 
     @Override
     public String getImageName() {

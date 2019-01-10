@@ -11,7 +11,9 @@ import java.util.stream.Collectors;
 
 import org.hobbit.core.service.docker.api.DockerService;
 import org.hobbit.core.service.docker.api.DockerServiceFactory;
+import org.hobbit.core.service.docker.api.DockerServiceSpec;
 import org.hobbit.core.service.docker.impl.core.DockerServicePseudoDelegate;
+import org.hobbit.core.service.docker.impl.core.DockerServiceSpecImpl;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
@@ -63,8 +65,17 @@ public class DockerServiceFactorySpringApplicationBuilder
 	}
 
 	@Override
-	public DockerService create(String imageName, Map<String, String> env) {
+	public void close() throws Exception {
+	}
 
+	@Override
+	public DockerService create(DockerServiceSpec serviceSpec) {
+
+		//String containerName = serviceSpec.getContainerName();
+		String imageName = serviceSpec.getImageName();
+		Map<String, String> localEnv = serviceSpec.getLocalEnvironment();
+
+		
 		Supplier<? extends SpringApplicationBuilder> imageConfigSupplier = imageNameToConfigSupplier.get(imageName);
 		if(imageConfigSupplier == null) {
 			throw new UnsupportedOperationException("No image '" + imageName + "' registered with this docker service factory");
@@ -75,7 +86,7 @@ public class DockerServiceFactorySpringApplicationBuilder
 		SpringApplicationBuilder appBuilder = imageConfigSupplier.get();
 		SpringApplicationBuilder rootBuilder = getRoot(appBuilder, DockerServiceFactorySpringApplicationBuilder::getParent);
 		
-		Map<String, Object> env2 = env.entrySet().stream().collect(Collectors.toMap(Entry::getKey, x -> (Object)x.getValue()));
+		Map<String, Object> env2 = localEnv.entrySet().stream().collect(Collectors.toMap(Entry::getKey, x -> (Object)x.getValue()));
 
 		ConfigurableEnvironment cenv = new StandardEnvironment();
 		cenv.getPropertySources().addFirst(new MapPropertySource("myPropertySource", env2));
@@ -92,9 +103,10 @@ public class DockerServiceFactorySpringApplicationBuilder
 		return result;
 	}
 
-	@Override
-	public void close() throws Exception {
-	}
+//	@Override
+//	public DockerServiceSpec newSpec() {
+//		return new DockerServiceSpecImpl();
+//	}
 
 }
 

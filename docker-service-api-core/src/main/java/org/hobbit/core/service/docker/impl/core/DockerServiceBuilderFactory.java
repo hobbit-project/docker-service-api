@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import org.hobbit.core.service.docker.api.DockerService;
 import org.hobbit.core.service.docker.api.DockerServiceBuilder;
+import org.hobbit.core.service.docker.api.DockerServiceFactory;
 
 /**
  * A convenience interface which can be used e.g. in dependency injection.
@@ -16,8 +17,6 @@ import org.hobbit.core.service.docker.api.DockerServiceBuilder;
 public interface DockerServiceBuilderFactory<B extends DockerServiceBuilder<? extends DockerService>>
 	extends Supplier<B>
 {
-	
-	
 	/**
 	 * Creates a DockerServiceBuilderFactory from a Supplier<B>.
 	 * A down cast is performed (instead of wrapping) if this supplier is already a DockerServiceBuilderFactory
