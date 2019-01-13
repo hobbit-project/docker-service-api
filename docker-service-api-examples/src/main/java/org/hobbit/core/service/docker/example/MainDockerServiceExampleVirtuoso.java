@@ -15,8 +15,8 @@ import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.riot.WebContent;
 import org.apache.jena.sparql.engine.http.QueryEngineHTTP;
 import org.hobbit.core.service.docker.api.DockerService;
-import org.hobbit.core.service.docker.api.DockerServiceFactory;
-import org.hobbit.core.service.docker.impl.docker_client.DockerServiceFactoryDockerClient;
+import org.hobbit.core.service.docker.api.DockerServiceSystem;
+import org.hobbit.core.service.docker.impl.docker_client.DockerServiceSystemDockerClient;
 
 import com.google.common.collect.ImmutableMap;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
@@ -24,9 +24,9 @@ import com.spotify.docker.client.exceptions.DockerCertificateException;
 public class MainDockerServiceExampleVirtuoso {
 	public static void main(String[] args) throws DockerCertificateException, Exception {
 
-		try (DockerServiceFactory<?> dsf = DockerServiceFactoryDockerClient.create(true, Collections.emptyMap(), Collections.emptySet())) {
+		try (DockerServiceSystem<?> dss = DockerServiceSystemDockerClient.create(true, Collections.emptyMap(), Collections.emptySet())) {
 
-			DockerService ds = dsf.create(null, "tenforce/virtuoso", ImmutableMap.<String, String>builder()
+			DockerService ds = dss.create("docker-service-example", "tenforce/virtuoso", ImmutableMap.<String, String>builder()
 					.put("SPARQL_UPDATE", "true")
 					.put("DEFAULT_GRAPH", "http://www.example.org/")
 					.build());
@@ -41,6 +41,7 @@ public class MainDockerServiceExampleVirtuoso {
 				String sparqlApiBase = "http://" + ds.getContainerId() + ":8890/";
 				String sparqlEndpoint = sparqlApiBase + "sparql";
 
+				dss.findServiceByName("docker-service-example");
 				
 				
 				try(RDFConnection rawConn = RDFConnectionFactory.connect(sparqlEndpoint)) {

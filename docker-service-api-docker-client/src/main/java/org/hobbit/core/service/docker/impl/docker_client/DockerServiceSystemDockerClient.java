@@ -3,7 +3,6 @@ package org.hobbit.core.service.docker.impl.docker_client;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -13,7 +12,6 @@ import java.util.function.Supplier;
 
 import org.hobbit.core.service.docker.api.DockerService;
 import org.hobbit.core.service.docker.api.DockerServiceBuilder;
-import org.hobbit.core.service.docker.api.DockerServiceFactory;
 import org.hobbit.core.service.docker.api.DockerServiceSpec;
 import org.hobbit.core.service.docker.api.DockerServiceSystem;
 import org.hobbit.core.service.docker.impl.core.DockerServiceBuilderImpl;
@@ -21,13 +19,17 @@ import org.hobbit.core.service.docker.util.EnvironmentUtils;
 
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
+import com.spotify.docker.client.DockerClient.ListContainersParam;
 import com.spotify.docker.client.exceptions.DockerCertificateException;
+import com.spotify.docker.client.exceptions.DockerException;
+import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerConfig.Builder;
+import com.spotify.docker.client.messages.ContainerInfo;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.PortBinding;
 
-public class DockerServiceFactoryDockerClient
+public class DockerServiceSystemDockerClient
 	//implements DockerServiceFactory<DockerService>
 	implements DockerServiceSystem<DockerService>
 {
@@ -37,7 +39,7 @@ public class DockerServiceFactoryDockerClient
     protected Set<String> networks;
 
 	
-	public DockerServiceFactoryDockerClient(
+	public DockerServiceSystemDockerClient(
 			DockerClient dockerClient,
 			Supplier<Builder> containerConfigBuilderSupplier,
 			boolean hostMode,
@@ -144,7 +146,7 @@ public class DockerServiceFactoryDockerClient
 	}
 
 	
-	public static DockerServiceFactory<?> create(
+	public static DockerServiceSystem<?> create(
 			boolean hostMode, Map<String, String> env, Set<String> networks) throws DockerCertificateException {
         DockerClient dockerClient = DefaultDockerClient.fromEnv().build();
 
@@ -175,7 +177,7 @@ public class DockerServiceFactoryDockerClient
         		;
         
         //Set<String> networks = Collections.singleton("hobbit");
-        DockerServiceFactoryDockerClient result = new DockerServiceFactoryDockerClient(dockerClient, containerConfigBuilderSupplier, hostMode, networks);
+        DockerServiceSystemDockerClient result = new DockerServiceSystemDockerClient(dockerClient, containerConfigBuilderSupplier, hostMode, networks);
         return result;
 	}
 
@@ -209,6 +211,33 @@ public class DockerServiceFactoryDockerClient
 //	
 		
 		return new DockerServiceBuilderImpl<>(this, serviceSpec);
+	}
+
+
+	@Override
+	public DockerService findServiceByName(String name) {
+		List<Container> containers;
+		try {
+			containers = dockerClient.listContainers(ListContainersParam.allContainers());
+		} catch (DockerException | InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+
+	    for (Container container : containers) {
+	    	List<String> names = container.names();
+	    	if(names.contains(name)) {
+	    		System.out.println("Got container with name: " + name);
+	    	}
+//	    	String containerId = container.names();
+//	    	if(containerId.equals(id)) {
+//	        if (imageName.equals(container.image())) {
+//	            ContainerInfo containerInfo = dockerClient.inspectContainer(container.id());
+//	            if (containerInfo.state().running()) {
+//	            }
+//	        }
+	    }
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 //	@Override

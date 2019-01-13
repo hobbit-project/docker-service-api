@@ -17,17 +17,17 @@ import com.google.common.util.concurrent.Service;
  *
  * @param <S>
  */
-public class DockerServicePseudoDelegate<S extends Service>
+public class DockerServiceWrapper<S extends Service>
 	extends ServiceDelegate<S>
 	implements DockerService
 {
-	private static final Logger logger = LoggerFactory.getLogger(DockerServicePseudoDelegate.class);
+	private static final Logger logger = LoggerFactory.getLogger(DockerServiceWrapper.class);
 
 
 	protected String imageName;
 	protected Supplier<String> getContainerId;
 	
-	public DockerServicePseudoDelegate(S service, String imageName, Supplier<String> getContainerId) {
+	public DockerServiceWrapper(S service, String imageName, Supplier<String> getContainerId) {
 		super(service);
 		this.imageName = imageName;
 		this.getContainerId = getContainerId;

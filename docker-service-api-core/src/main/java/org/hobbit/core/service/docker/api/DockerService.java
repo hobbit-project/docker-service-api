@@ -17,6 +17,8 @@ public interface DockerService
     /**
      * The container id of a once started service
      * 
+     * TODO This is usually NOT the docker Id, but an IP address, a host name, or some other form of handle
+     * 
      * @return
      */
     String getContainerId();

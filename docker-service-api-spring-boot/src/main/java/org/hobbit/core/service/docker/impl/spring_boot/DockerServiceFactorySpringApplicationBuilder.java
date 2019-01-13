@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import org.hobbit.core.service.docker.api.DockerService;
 import org.hobbit.core.service.docker.api.DockerServiceFactory;
 import org.hobbit.core.service.docker.api.DockerServiceSpec;
-import org.hobbit.core.service.docker.impl.core.DockerServicePseudoDelegate;
+import org.hobbit.core.service.docker.impl.core.DockerServiceWrapper;
 import org.hobbit.core.service.docker.impl.core.DockerServiceSpecImpl;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -99,7 +99,7 @@ public class DockerServiceFactorySpringApplicationBuilder
 
 		Service service = new ServiceSpringApplicationBuilder(imageName, appBuilder);
 
-		DockerService result = new DockerServicePseudoDelegate<>(service, imageName, idStrSupplier);
+		DockerService result = new DockerServiceWrapper<>(service, imageName, idStrSupplier);
 		return result;
 	}
 
