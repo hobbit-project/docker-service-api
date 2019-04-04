@@ -42,7 +42,7 @@ public class DockerServiceDockerClient
     // Status fields for running services
     // Container id (requires the service to be running)
     protected String containerId;
-    protected Integer exitCode;
+    protected Long exitCode;
     
     protected String containerName;
     
@@ -233,7 +233,7 @@ public class DockerServiceDockerClient
     @Override
     public Integer getExitCode() {
         //logger.warn("STUB! Exist code always returns 0");
-        return exitCode;
+        return exitCode != null ? exitCode.intValue() : null;
     }
 
 }

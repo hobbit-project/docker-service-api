@@ -25,7 +25,6 @@ import com.spotify.docker.client.exceptions.DockerException;
 import com.spotify.docker.client.messages.Container;
 import com.spotify.docker.client.messages.ContainerConfig;
 import com.spotify.docker.client.messages.ContainerConfig.Builder;
-import com.spotify.docker.client.messages.ContainerInfo;
 import com.spotify.docker.client.messages.HostConfig;
 import com.spotify.docker.client.messages.PortBinding;
 
@@ -56,6 +55,13 @@ public class DockerServiceSystemDockerClient
 		this.networks = networks;
 	}
 
+	/**
+	 * 
+	 * @return the backing docker client instance
+	 */
+	public DockerClient getDockerClient() {
+		return dockerClient;
+	}
 	
 //	   public static boolean containsVersionTag(String imageName) {
 //	        int pos = 0;
@@ -146,7 +152,7 @@ public class DockerServiceSystemDockerClient
 	}
 
 	
-	public static DockerServiceSystem<?> create(
+	public static DockerServiceSystemDockerClient create(
 			boolean hostMode, Map<String, String> env, Set<String> networks) throws DockerCertificateException {
         DockerClient dockerClient = DefaultDockerClient.fromEnv().build();
 
