@@ -30,7 +30,7 @@ import com.spotify.docker.client.messages.PortBinding;
 
 public class DockerServiceSystemDockerClient
 	//implements DockerServiceFactory<DockerService>
-	implements DockerServiceSystem<DockerService>
+	implements DockerServiceSystem<DockerServiceDockerClient>
 {
     protected DockerClient dockerClient;
     protected Supplier<ContainerConfig.Builder> containerConfigBuilderSupplier;
@@ -106,7 +106,7 @@ public class DockerServiceSystemDockerClient
     }
 
 	@Override
-	public DockerService create(DockerServiceSpec serviceSpec) {
+	public DockerServiceDockerClient create(DockerServiceSpec serviceSpec) {
 		
 		String containerName = serviceSpec.getContainerName();
 		String imageName = serviceSpec.getImageName();
@@ -194,7 +194,7 @@ public class DockerServiceSystemDockerClient
 
 
 	@Override
-	public DockerServiceBuilder<DockerService> newServiceBuilder() {
+	public DockerServiceBuilder<DockerServiceDockerClient> newServiceBuilder() {
 		Builder containerConfigBuilder = containerConfigBuilderSupplier.get();
 		
 		DockerServiceSpec serviceSpec = DockerServiceSpecDockerClient.wrap(containerConfigBuilder);
@@ -221,7 +221,7 @@ public class DockerServiceSystemDockerClient
 
 
 	@Override
-	public DockerService findServiceByName(String name) {
+	public DockerServiceDockerClient findServiceByName(String name) {
 		List<Container> containers;
 		try {
 			containers = dockerClient.listContainers(ListContainersParam.allContainers());

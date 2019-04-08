@@ -48,6 +48,9 @@ public class DockerServiceDockerClient
     
     protected boolean hostMode;
     
+ 
+    protected String creationId;
+
     public DockerServiceDockerClient(DockerClient dockerClient, ContainerConfig containerConfig, String name, boolean hostMode, Set<String> networks) {
         super();
         this.dockerClient = dockerClient;
@@ -64,8 +67,8 @@ public class DockerServiceDockerClient
     	logger.info("Attempting to start docker container: " + getImageName() + " env: " + containerConfig.env() + " hostMode: " + hostMode + " networks: " + networks);
     	
         ContainerCreation creation = dockerClient.createContainer(containerConfig, name);
-        containerId = creation.id();
-
+        creationId = creation.id();
+        containerId = creationId;
 
         ContainerInfo containerInfo = dockerClient.inspectContainer(containerId);
 
@@ -203,6 +206,10 @@ public class DockerServiceDockerClient
         return result;
     }
 
+    public String getCreationId() {
+    	return creationId;
+    }
+    
     @Override
     public String getContainerId() {
         //return containerId;
