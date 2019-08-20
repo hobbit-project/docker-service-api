@@ -11,10 +11,12 @@
 
 	<properties>
 		<!-- <jena-sparql-api.version>3.7.0-1-SNAPSHOT</jena-sparql-api.version> -->
-		<jena.version>3.8.0</jena.version>
-		<jena-sparql-api.version>${jena.version}-1-SNAPSHOT</jena-sparql-api.version>
-		<spring.version>4.3.11.RELEASE</spring.version>
+		<jena.version>3.12.0</jena.version>
+		<jena-sparql-api.version>${jena.version}-2-SNAPSHOT</jena-sparql-api.version>
+<!--		<spring.version>4.3.11.RELEASE</spring.version> -->
 		<slf4j.version>1.7.25</slf4j.version>
+
+		<spring-boot.version>2.1.6.RELEASE</spring-boot.version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -56,7 +58,7 @@
 			<dependency>
 				<groupId>org.apache.jena</groupId>
 				<artifactId>jena-arq</artifactId>
-				<version>3.9.0</version>
+				<version>${jena.version}</version>
 			</dependency>
 
 
@@ -75,22 +77,22 @@
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot</artifactId>
-				<version>1.5.7.RELEASE</version>
+				<version>${spring-boot.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-autoconfigure</artifactId>
-				<version>1.5.7.RELEASE</version>
+				<version>${spring-boot.version}</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-loader</artifactId>
-				<version>1.5.7.RELEASE</version>
+				<version>${spring-boot.version}</version>
 			</dependency>
 
-
+<!--
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-core</artifactId>
@@ -120,7 +122,7 @@
 				<artifactId>spring-test</artifactId>
 				<version>${spring.version}</version>
 			</dependency>
-
+-->
 
 			<dependency>
 				<groupId>com.google.guava</groupId>
