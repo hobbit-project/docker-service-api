@@ -9,6 +9,8 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.aksw.commons.util.healthcheck.HealthcheckRunner;
+import org.aksw.commons.util.healthcheck.HealthcheckUtils;
 import org.hobbit.core.service.docker.api.DockerService;
 import org.hobbit.core.service.docker.api.DockerServiceFactory;
 import org.hobbit.core.service.docker.api.DockerServiceSpec;
@@ -45,17 +47,23 @@ public class ComponentUtils {
                     //String destination = "http://" + host + (port == null ? "" : ":" + port) + "/sparql";
 
                     URL url = HealthcheckUtils.createUrl(urlStr);
+                    HealthcheckRunner.builder()
+                        .setRetryCount(60)
+                        .setInterval(1, TimeUnit.SECONDS)
+                        .setAction(() -> HealthcheckUtils.checkUrl(url))
+                        .build()
+                        .run();
 
-                    new HealthcheckRunner(
-                            60, 1, TimeUnit.SECONDS, () -> {
-                            HealthcheckUtils.checkUrl(url);
-
-                            // This part seems to leak connections with jena 3.7.0 as long as the endpoint is not ready
-//	                      try (RDFConnection conn = RDFConnectionFactory.connect(destination)) {
-//	                          //conn.querySelect("SELECT * { <http://example.org/healthcheck> a ?t }", qs -> {});
-//	                          ResultSetFormatter.consume(conn.query("SELECT * { <http://example.org/healthcheck> a ?t }").execSelect());
-//	                      }
-                    }).run();
+//                    new HealthcheckRunner(
+//                            60, 1, TimeUnit.SECONDS, () -> {
+//                            HealthcheckUtils.checkUrl(url);
+//
+//                            // This part seems to leak connections with jena 3.7.0 as long as the endpoint is not ready
+////	                      try (RDFConnection conn = RDFConnectionFactory.connect(destination)) {
+////	                          //conn.querySelect("SELECT * { <http://example.org/healthcheck> a ?t }", qs -> {});
+////	                          ResultSetFormatter.consume(conn.query("SELECT * { <http://example.org/healthcheck> a ?t }").execSelect());
+////	                      }
+//                    }).run();
                 }
             };
 
